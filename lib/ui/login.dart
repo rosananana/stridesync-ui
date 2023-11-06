@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:stridesync_ui/ui/homepage.dart';
+import 'package:stridesync_ui/ui/activity.dart';
+import 'package:stridesync_ui/ui/landing.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key, required this.controller});
@@ -21,21 +22,35 @@ class _LoginScreenState extends State<LoginScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 50),
+            padding: const EdgeInsets.all(50),
             child: Column(
               textDirection: TextDirection.ltr,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Log In',
-                  style: TextStyle(
-                    color: Color.fromARGB(255, 126, 14, 39),
-                    fontSize: 26,
-                    fontWeight: FontWeight.w400,
-                  ),
+                Center(
+                  child: RichText(
+                    text: const TextSpan(children: [
+                      TextSpan(text: 'Stride',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 126, 14, 39),
+                          fontSize: 36,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+
+                      TextSpan(text: 'Sync',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 7, 2, 3),
+                          fontSize: 36,
+                          fontWeight: FontWeight.w600,
+                        )
+                      )
+                    ],)
+                  )
                 ),
 
                 const SizedBox(
-                  height: 100,
+                  height: 40,
                 ),
 
                 TextField(
@@ -106,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const MyHomePage())
+                            MaterialPageRoute(builder: (context) => const LandingPage())
                           );
                         },
                         style: ElevatedButton.styleFrom(
