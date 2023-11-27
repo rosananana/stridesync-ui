@@ -1,24 +1,72 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:stridesync_ui/ui/activity.dart';
-import 'package:stridesync_ui/ui/landing.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key, required this.controller});
-  final PageController controller;
-  
+  LoginScreen({super.key});
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _userController = TextEditingController();
-  final TextEditingController _passController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  void signIn() async {
+    showDialog(
+      context: context, 
+      builder: (context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      }
+    );
+
+    // try to sign in
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: _emailController.text, 
+      password: _passwordController.text,
+      );
+      Navigator.pop(context);
+    } on FirebaseAuthException catch(e) {
+      Navigator.pop(context);
+      if (e.code == 'user-not-found') {
+        wrongEmail();
+      } else if (e.code == 'wrong-password') {
+        wrongPassword();
+      }
+    }
+  }
+
+  void wrongEmail() {
+    showDialog(
+      context: context, 
+      builder: (context) {
+        return const AlertDialog(
+          title: Text("Incorrect Email"),
+        );
+      },
+    );
+  }
+
+  void wrongPassword() {
+  showDialog(
+    context: context, 
+    builder: (context) {
+      return const AlertDialog(
+        title: Text("Incorrect Password"),
+      );
+    },
+  );
+}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
@@ -54,21 +102,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
 
                 TextField(
-                  controller: _userController,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Color(0xFF393939),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w400,
-                  ),
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(
-                    labelText: 'Username',
-                    labelStyle: TextStyle(
-                      color: Color.fromARGB(255, 126, 14, 39),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                    hintText: "Email"
+                  )
                 ),
                 
                 const SizedBox(
@@ -76,20 +114,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
 
                 TextField(
-                  controller: _passController,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Color(0xFF393939),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w400,
-                  ),
+                  controller: _passwordController,
+                  obscureText: true,
                   decoration: const InputDecoration(
-                    labelText: 'Password',
-                    labelStyle: TextStyle(
-                      color: Color.fromARGB(255, 126, 14, 39),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    hintText: "Password",
                   ),
                 ),
 
@@ -119,10 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: 50,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const LandingPage())
-                          );
+                          signIn();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color.fromARGB(255, 126, 14, 39),

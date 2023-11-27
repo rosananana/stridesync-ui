@@ -1,23 +1,33 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:stridesync_ui/ui/activity.dart';
 
-class LandingPage extends StatefulWidget {
-  const LandingPage({super.key});
+class LandingPage extends StatelessWidget {
+  LandingPage({super.key});
 
-  @override
-  State<LandingPage> createState() => _LandingPage();
-}
+  final user = FirebaseAuth.instance.currentUser!;
 
-class _LandingPage extends State<LandingPage> {
+  void signOut() {
+    FirebaseAuth.instance.signOut();
+  }
 
   @override
   Widget build(BuildContext context){
     return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            onPressed: signOut, 
+            icon: Icon(Icons.logout),
+          )
+        ],
+      ),
       backgroundColor: Color.fromARGB(255, 126, 14, 39),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Padding(
+          const Padding(
             padding: const EdgeInsets.all(50),
             child: Column(
               textDirection: TextDirection.ltr,
