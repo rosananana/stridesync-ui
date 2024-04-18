@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:stridesync_ui/firebase_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({super.key});
@@ -9,57 +10,17 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final FirebaseAuthService _auth = FirebaseAuthService();
 
-  void signIn() async {
-    showDialog(
-      context: context, 
-      builder: (context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      }
-    );
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
 
-    // try to sign in
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: _emailController.text, 
-      password: _passwordController.text,
-      );
-      Navigator.pop(context);
-    } on FirebaseAuthException catch(e) {
-      Navigator.pop(context);
-      if (e.code == 'user-not-found') {
-        wrongEmail();
-      } else if (e.code == 'wrong-password') {
-        wrongPassword();
-      }
-    }
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
-
-  void wrongEmail() {
-    showDialog(
-      context: context, 
-      builder: (context) {
-        return const AlertDialog(
-          title: Text("Incorrect Email"),
-        );
-      },
-    );
-  }
-
-  void wrongPassword() {
-  showDialog(
-    context: context, 
-    builder: (context) {
-      return const AlertDialog(
-        title: Text("Incorrect Password"),
-      );
-    },
-  );
-}
 
   @override
   Widget build(BuildContext context) {
@@ -76,43 +37,36 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
-                  child: RichText(
-                    text: const TextSpan(children: [
-                      TextSpan(text: 'Stride',
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 126, 14, 39),
-                          fontSize: 36,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    child: RichText(
+                        text: const TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Stride',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 126, 14, 39),
+                        fontSize: 36,
+                        fontWeight: FontWeight.w600,
                       ),
-
-                      TextSpan(text: 'Sync',
+                    ),
+                    TextSpan(
+                        text: 'Sync',
                         style: TextStyle(
                           color: Color.fromARGB(255, 7, 2, 3),
                           fontSize: 36,
                           fontWeight: FontWeight.w600,
-                        )
-                      )
-                    ],)
-                  )
-                ),
-
+                        ))
+                  ],
+                ))),
                 const SizedBox(
                   height: 40,
                 ),
-
                 TextField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    hintText: "Email"
-                  )
-                ),
-                
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(hintText: "Email")),
                 const SizedBox(
                   height: 20,
                 ),
-
                 TextField(
                   controller: _passwordController,
                   obscureText: true,
@@ -120,49 +74,47 @@ class _LoginScreenState extends State<LoginScreen> {
                     hintText: "Password",
                   ),
                 ),
-
                 const SizedBox(
                   height: 5,
                 ),
-
-                const Text(
-                  'Forget Password?',
-                  style: TextStyle(
-                    color: Color.fromARGB(255, 126, 14, 39),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w400,
-                  ),
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Forget Password?",
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 126, 14, 39),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    Text(
+                      "Don\'t have an account? Sign Up",
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 126, 14, 39),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
                 ),
-
                 const SizedBox(
                   height: 20,
                 ),
-
-                Container(
-                  alignment: Alignment.center,
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                    child: SizedBox(
-                      width: 315,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          signIn();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromARGB(255, 126, 14, 39),
-                        ),
-                        child: const Text(
-                          'Sign In',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: const Color(0xFF660033),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(20))),
+                    minimumSize: Size(double.infinity, 40),
                   ),
+                  onPressed: _signIn,
+                  child: const Text("Log In",
+                      style: TextStyle(
+                        fontSize: 18.0,
+                      )),
                 ),
               ],
             ),
@@ -170,5 +122,19 @@ class _LoginScreenState extends State<LoginScreen> {
         ],
       ),
     );
+  }
+
+  void _signIn() async {
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    User? user = await _auth.signInWithEmailAndPassword(email, password);
+
+    if (user != null) {
+      print("User has successfully signed in");
+      Navigator.pushNamed(context, "/landing");
+    } else {
+      print("Error");
+    }
   }
 }
