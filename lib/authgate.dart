@@ -1,25 +1,29 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:stridesync_ui/ui/landing.dart';
-import 'package:stridesync_ui/ui/login.dart';
+import "package:firebase_auth/firebase_auth.dart";
 
-class AuthPage extends StatelessWidget {
-  const AuthPage({super.key});
+class FirebaseAuthService {
+  FirebaseAuth _auth = FirebaseAuth.instance;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          // if user is logged in
-          if (snapshot.hasData) {
-            return LandingPage();
-          } else {
-            return LoginScreen();
-          }
-        },
-      )
-    );
+  Future<User?> signUpWithEmailAndPassword(
+      String email, String password) async {
+        try {
+          UserCredential credential = await _auth.createUserWithEmailAndPassword(
+              email: email, password: password);
+          return credential.user;
+        } catch (e) {
+          print("Error");
+        }
+        return null;
+  }
+
+  Future<User?> signInWithEmailAndPassword(
+      String email, String password) async {
+        try {
+          UserCredential credential = await _auth.signInWithEmailAndPassword(
+              email: email, password: password);
+          return credential.user;
+        } catch (e) {
+          print("Error");
+        }
+        return null;
   }
 }
