@@ -1,86 +1,160 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart' hide EmailAuthProvider;
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:stridesync_ui/authgate.dart';
-import 'package:stridesync_ui/ui/landing.dart';
-import 'package:stridesync_ui/ui/login.dart';
+import 'package:stridesync_ui/login.dart';
+import 'package:stridesync_ui/user_landing.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: const FirebaseOptions(
-      apiKey: "AIzaSyC4q0ZHrYo6lwBs0OOH1t_ZGADSotJfjIM", 
-      messagingSenderId: "428070319156",
-      projectId: "stridesync-2ded9",
-      appId: "1:428070319156:web:8ebacaff969ae4a3d24661",
-      )
-  );
-
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: "AIzaSyC4q0ZHrYo6lwBs0OOH1t_ZGADSotJfjIM",
+        appId: "1:428070319156:web:8ebacaff969ae4a3d24661",
+        messagingSenderId: "428070319156",
+        projectId: "stridesync-2ded9",
+      ),
+    );
+  } else {
+    await Firebase.initializeApp();
+  }
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key : key);
+  const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'StrideSync',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 126, 14, 39)),
-      ),
-      home: WebPage()
-    );
+        debugShowCheckedModeBanner: false,
+        // home: HomePage(),
+        routes: {
+          "/": (context) => const HomePage(),
+          "/landing": (context) => userLanding(),
+        });
   }
 }
 
-class WebPage extends StatefulWidget {
-  WebPage({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
 
   @override
-  State<WebPage> createState() => _WebPage();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _WebPage extends State<WebPage> {
+class _HomePageState extends State<HomePage> {
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    body: DecoratedBox( 
-      decoration: BoxDecoration( 
-        image: DecorationImage( 
-          image: AssetImage("assets/mountain.jpeg"), 
-          fit: BoxFit.cover),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        color: Colors.white,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              // StrideSync & Sign Up
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: RichText(
+                    text: const TextSpan(children: [
+                      TextSpan(
+                        text: 'Stride',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 126, 14, 39),
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      TextSpan(
+                        text: 'Sync',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 7, 2, 3),
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      )
+                    ]),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: RawMaterialButton(
+                    onPressed: () {},
+                    child: const DefaultTextStyle(
+                      style: TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w400),
+                      child: Text("Sign Up"),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const Expanded(
+                    child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Just finished running? Let's see how you looked.",
+                                style: TextStyle(
+                                    fontSize: 28.0,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600),
+                                maxLines: 3,
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Text(
+                                "Keep track of your runs. Visualize your form. Evaluate your performance.",
+                                style: TextStyle(
+                                    fontSize: 24.0,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w400),
+                                maxLines: 4,
+                              ),
+                            ])),
+                  ),
+                  Image.asset("assets/user_running.png"),
+                ]),
+            const SizedBox(
+              height: 20,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: const Color(0xFF660033),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20))),
+                  minimumSize: const Size(200, 36),
+                ),
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => LoginScreen()));
+                },
+                child: const Text("Log In",
+                    style: TextStyle(
+                      fontSize: 18.0,
+                    )),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
-
-
-// class Login extends StatefulWidget {
-//   const Login({super.key});
-
-//   @override
-//   State<Login> createState() => _Login();
-// }
-
-// class _Login extends State<Login> {
-//   PageController controller = PageController(initialPage: 0);
-
-//   @override
-//   Widget build(BuildContext context){
-//     return Scaffold(
-//       body: PageView.builder(
-//         physics: const NeverScrollableScrollPhysics(),
-//         itemCount: 1,
-//         controller: controller,
-//         itemBuilder: (context, index) {
-//           if (index == 0) { // add additional for forgot password? sign up? 
-//             return LoginScreen(
-//               controller: controller,
-//             );
-//           }
-//         },
-//       ),
-//     );
-//   }
-// }
